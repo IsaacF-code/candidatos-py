@@ -48,8 +48,35 @@ if base_csv != None:
 
     st.bar_chart(grau_instrucao.set_index('DS_GRAU_INSTRUCAO')['Quantidade'], x_label='DS_GRAU_INSTRUCAO', y_label='COUNT')
 
+    # ---------------
+    grau_genero = base_filtrada.groupby(['DS_GRAU_INSTRUCAO', 'DS_GENERO']).size().reset_index(name='Quantidade')
+    grau_genero_pivot = grau_genero.pivot(index='DS_GRAU_INSTRUCAO', columns='DS_GENERO', values='Quantidade').fillna(0)
+
     st.header("Relação entre Gênero e Grau de Instrução")
 
     st.write("Grau de Instrução por Gênero")
 
-    st.bar_chart(grau_instrucao.set_index('DS_GRAU_INSTRUCAO')['Quantidade'], x_label='DS_GRAU_INSTRUCAO', y_label='COUNT', color=base('DS_GENERO'), stack=False)
+    st.bar_chart(grau_genero_pivot, x_label='Grau de Instrução', y_label='count', stack=False)
+
+    # ---------------
+    cor_raca = base_filtrada.groupby('DS_COR_RACA').size().reset_index(name='Total')
+
+    st.write("Distribuição da Cor/Raça dos Candidatos")
+    pizza_cor_raca = px.pie(values=cor_raca['Total'], names=cor_raca['DS_COR_RACA'])
+    st.plotly_chart(pizza_cor_raca)
+
+    # ----------------
+
+    st.header("Distribuição por Gênero")
+
+    genero = base_filtrada.groupby('DS_GENERO').size().reset_index(name='Total')
+    pizza_genero = px.pie(values=genero['Total'], names=genero['DS_GENERO'])
+
+    st.write("Distribuição de Gênero dos Candidatos")
+    st.plotly_chart(pizza_genero)
+
+    # ----------------
+
+    candidatas_femininas = base_filtrada.groupby(['DS_GENERO', 'SG_PARTIDO']).size().reset_index(name='Total')
+    bar_cand_feminina = px.bar(candidatas_femininas, x=candidatas_femininas['SG_PARTIDO'], y=candidatas_femininas['DS_GENERO'])
+    st.plotly_chart(bar_cand_feminina)
